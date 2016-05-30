@@ -126,7 +126,7 @@ function quienAccion(bot, message) {
   var keyword = "quien";
   var msg = message.text;
   var reply = _.replace(msg, keyword, _.sample(usersInRG));
-  bot.reply(message, msg, _.replace(reply, '?', ''));
+  bot.reply(message, _.replace(reply, '?', ''));
 }
 
 function reunionesSemana(bot, message) {
