@@ -134,6 +134,12 @@ function quienAccion(bot, message) {
             var reply = _.replace(msg, keyword, user.real_name);
             bot.reply(message, _.replace(reply, '?', ''));
           }
+          else if (usersInRG.length == 1){
+            bot.reply(message, "Estas solo cabeza!!");
+          }
+          else {
+            bot.reply(message, '_naides_');
+          }
       }
   });
 }
