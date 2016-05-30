@@ -126,22 +126,24 @@ function quienAccion(bot, message) {
   var keyword = "quien";
   var msg = message.text;
   var userId = _.sample(usersInRG);
-  controller.storage.users.get(userId, function(err, user) {
-      if (err) {
-          console.log('ERROR: ', err);
-      } else {
-          if (usersInRG.length > 1) {
+  controller.storage.users.get(userId)
+    .then(function(user) {
+        if (usersInRG.length > 1) {
             var reply = _.replace(msg, keyword, user.real_name);
             bot.reply(message, _.replace(reply, '?', ''));
-          }
-          else if (usersInRG.length == 1){
+        }
+        else if (usersInRG.length == 1){
             bot.reply(message, "Estas solo cabeza!!");
-          }
-          else {
+        }
+        else {
             bot.reply(message, '_naides_');
-          }
-      }
-  });
+        }
+    })
+    .catch(function(err) {
+        if (err) {
+            console.log('ERROR: ', err);
+        }
+    });
 }
 
 function reunionesSemana(bot, message) {
