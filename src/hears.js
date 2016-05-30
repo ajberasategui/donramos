@@ -41,6 +41,7 @@ function initOwnHears() {
     addHear(['('+myName+')*'+'aprende (.*):(.*)'], config.HEAR_ENVS.MENTION_AND_DIRECT, aprende);
     addHear(['('+myName+')*'+'hola'], config.HEAR_ENVS.MENTION_AND_DIRECT, queSeYo);
     addHear(['('+myName+')*'+'me voy'], config.HEAR_ENVS.MENTION_AND_DIRECT, meVoy);
+    addHear(['('+myName+')*'+'quien va a (.*)'], config.HEAR_ENVS.MENTION_AND_DIRECT, quienCompra);
     // addhear(['('+myName+')*(.*)put[ao]'], config.HEAR_ENVS.MENTION_AND_DIRECT, function(bot, message) {
     //     bot.reply(message, "Seras vos!");
     // });
@@ -58,7 +59,7 @@ function initOwnHears() {
 
 /**
  * Add a hear function to controller
- * 
+ *
  * @param msg {Array} Array of messages to respond to.
  * @param env {String} Environments on to listen to.
  * @param responseCallback {function} Function to execute when msg is received.
@@ -73,11 +74,11 @@ function queSeYo(bot, message) {
             "Darte las reuniones de la semana si me decis 'reuniones semana' \n" +
             "Aprender cosas nuevas si me decis 'aprende pregunta:respuest' \n" +
             "Registrarte como presente en RG si me decis 'estoy en rg' \n" +
-            "Decirte quien esta en RG ahora si me preguntas 'quien en rg' \n" + 
+            "Decirte quien esta en RG ahora si me preguntas 'quien en rg' \n" +
             "Avisarme cuando te vas de RG diciendome 'me voy'";
-        
-        var title = (user && user.profile.first_name) ? "Hola " + user.profile.first_name + ". " : "Hola. "; 
-        title += "Puedo: "; 
+
+        var title = (user && user.profile.first_name) ? "Hola " + user.profile.first_name + ". " : "Hola. ";
+        title += "Puedo: ";
         answerAsAttachment(bot, message, title, iCan);
     });
 }
@@ -86,7 +87,7 @@ function sugerencia(bot, message) {
     var keyword = "sugerencia:";
     var msg = message.text;
     msg = msg.substring(msg.indexOf(keyword) + keyword.length);
-    
+
     logger.logSuccess(message.user + " esta sugiriendo que: " + msg);
     var suggestions = [];
     db.get('suggestions')
@@ -106,9 +107,9 @@ function aprende(bot, message) {
     var keyword = "aprende";
     var msg = message.text;
     msg = msg.substring(msg.indexOf(keyword) + keyword.length);
-    
+
     logger.logSuccess(message.user + " esta intentando enseñarme que: " + msg);
-    
+
     var toLearn = msg.split(":");
     if (2 === toLearn.length) {
         addHear(toLearn[0].trim(), config.HEAR_ENVS.ALL, function(bot, message) {
@@ -121,16 +122,23 @@ function aprende(bot, message) {
     }
 }
 
+function quienAccion(bot, message) {
+  var keyword = "quien";
+  var msg = message.text;
+  var reply = _.replace(msg, keyword, _.sample(usersInRG));
+  bot.reply(message, msg, _.replace(reply, '?', ''));
+}
+
 function reunionesSemana(bot, message) {
     gcalAuth.authorizeAndCall(function(auth) {
         gCalendar.getWeekEvents(auth, getEventsSuccess);
     });
-    
+
     function getEventsSuccess(events) {
         var response = '';
         for (var i = 0; i < events.length; i++) {
             var event = events[i];
-            response += 
+            response +=
                 event.summary + ' ' + moment(event.start.dateTime).format(config.DATE_FORMAT) + "\n";
         }
         answerAsAttachment(bot, message, "Reuniones de esta semana", response);
@@ -141,12 +149,12 @@ function reunionesMes(bot, message) {
     gcalAuth.authorizeAndCall(function(auth) {
         gCalendar.getMonthEvents(auth, getEventsSuccess);
     });
-    
+
     function getEventsSuccess(events) {
         var response = '';
         for (var i = 0; i < events.length; i++) {
             var event = events[i];
-            response += 
+            response +=
                 event.summary + ' ' + moment(event.start.dateTime).format(config.DATE_FORMAT) + "\n";
         }
         answerAsAttachment(bot, message, "Reuniones de este mes", response);
@@ -165,6 +173,7 @@ function meVoy(bot, message) {
 function estoyEnRG(bot, message) {
     usersInRG = usersInRG || [];
     usersInRG.push(message.user);
+    usersInRG = _.uniq(usersInRG);
     db.save('usersInRG', usersInRG);
     controller.storage.users.get(message.user)
         .then(function(user) {
@@ -188,7 +197,7 @@ function quienEnRG(bot, message) {
                     if (i === usersInRG.length - 1) {
                         bot.reply(message, 'Estan: ' + users);
                     }
-                }    
+                }
             });
         }
     } else {
@@ -246,7 +255,7 @@ function saveNewConcept(question, answer) {
 //                 bot.reply(message, "Enterado, " + user.real_name);
 //             }
 //         });
-        
+
 //     });
 // });
 
@@ -262,7 +271,7 @@ function saveNewConcept(question, answer) {
 //                 if (i === usersInRG.length - 1) {
 //                     bot.reply(message, 'Estan: ' + users);
 //                 }
-//             }    
+//             }
 //         });
 //     }
 // });
@@ -293,12 +302,12 @@ function saveNewConcept(question, answer) {
     // gcalAuth.authorizeAndCall(function(auth) {
     //     gCalendar.getWeekEvents(auth, getEventsSuccess);
     // });
-    
+
     // function getEventsSuccess(events) {
     //     var response = '';
     //     for (var i = 0; i < events.length; i++) {
     //         var event = events[i];
-    //         response += 
+    //         response +=
     //             event.summary + ' ' + moment(event.start.dateTime).format(config.DATE_FORMAT) + "\n";
     //     }
     //     bot.reply(message, {'text': 'Reuniones de esta semana', 'attachments': [{'text': response}]});
@@ -309,12 +318,12 @@ function saveNewConcept(question, answer) {
 //     gcalAuth.authorizeAndCall(function(auth) {
 //         gCalendar.getMonthEvents(auth, getEventsSuccess);
 //     });
-    
+
 //     function getEventsSuccess(events) {
 //         var response = '';
 //         for (var i = 0; i < events.length; i++) {
 //             var event = events[i];
-//             response += 
+//             response +=
 //                 event.summary + " " +
 //                 moment(event.start.dateTime).format(config.DATE_FORMAT) + "\n";
 //         }
@@ -323,7 +332,7 @@ function saveNewConcept(question, answer) {
 // });
 
 // controller.hears(['(d|D)on( )(r|R)amos (.*) maestro'], HEAR_ENVS.ALL, function(bot, message) {
-//    bot.reply(message, "Ya se."); 
+//    bot.reply(message, "Ya se.");
 // });
 
 
