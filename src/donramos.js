@@ -51,7 +51,7 @@ function init() {
             concepts = results[1];
             allMembers = results[2];
             logger.logSuccess("Pariendo...");
-            listener = hears(bot, controller, config, db, myName);
+            listener = hears(bot, controller, config, db, myName, config.HEARS_DIR);
             
             listener.setAllMembers(allMembers);
             listener.setUsersInRG(usersInRG);

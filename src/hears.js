@@ -4,6 +4,7 @@ var gCalendar = require('./gcal/gcalendar');
 var moment = require('moment');
 var _ = require('lodash');
 var Store = require('jfs');
+var fs = require('fs');
 
 let bot;
 let controller;
@@ -13,17 +14,18 @@ let usersInRG;
 let learntConcepts;
 let allMembers;
 let myName;
+let hearsDir;
 
-module.exports = function(theBot, theController, theConfig, theDB, botName) {
+module.exports = function(theBot, theController, theConfig, theDB, botName, hearDir) {
     myName = botName;
     bot = theBot;
     controller = theController;
     config = theConfig;
     db = theDB;
     allMembers = [];
-    // console.log(usersInRG);
+    hearsDir = hearDir;
     initOwnHears();
-    // return public interface
+    loadExternalHears();
     return {
         setUsersInRG: setUsersInRG,
         setAllMembers: setAllMembers,
@@ -31,6 +33,20 @@ module.exports = function(theBot, theController, theConfig, theDB, botName) {
         addHear: addHear
     };
 };
+
+function loadExternalHears() {
+    if (!_.isUndefined(hearsDir)) {
+        var extHears = fs.readdirSync(hearsDir);
+        _.forEach(extHears, function(hear) {
+            logger.logSuccess("./hears/" + hear);
+            var h = require("./hears/" + hear);
+            logger.logSuccess(JSON.stringify(h));
+            controller.hears(h.msg, h.env, h.responseCallback);
+        });
+    } else {
+        logger.logError("hearsDir is not defined.");
+    }
+}
 
 function initOwnHears() {
     var enteradoCount = 0;
@@ -42,19 +58,6 @@ function initOwnHears() {
     addHear(['('+myName+')*'+'hola'], config.HEAR_ENVS.MENTION_AND_DIRECT, queSeYo);
     addHear(['('+myName+')*'+'me voy'], config.HEAR_ENVS.MENTION_AND_DIRECT, meVoy);
     addHear(['('+myName+')*'+'quien va a (.*)'], config.HEAR_ENVS.MENTION_AND_DIRECT, quienAccion);
-    // addhear(['('+myName+')*(.*)put[ao]'], config.HEAR_ENVS.MENTION_AND_DIRECT, function(bot, message) {
-    //     bot.reply(message, "Seras vos!");
-    // });
-    addHear(['('+myName+')*'+'(.*)'], config.HEAR_ENVS.MENTION_AND_DIRECT, function(bot, message) {
-        if (enteradoCount > 2) {
-            bot.reply(message, "Hay, creo que le habla a Ud.!");
-            enteradoCount = 0;
-        } else {
-            bot.reply(message, "Enterado!");
-            enteradoCount++;
-        }
-    })
-    logger.logSuccess("Hears loaded");
 }
 
 /**
