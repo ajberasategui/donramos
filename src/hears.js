@@ -125,8 +125,17 @@ function aprende(bot, message) {
 function quienAccion(bot, message) {
   var keyword = "quien";
   var msg = message.text;
-  var reply = _.replace(msg, keyword, _.sample(usersInRG));
-  bot.reply(message, _.replace(reply, '?', ''));
+  var userId = _.sample(usersInRG);
+  controller.storage.users.get(userId, function(err, user) {
+      if (err) {
+          console.log('ERROR: ', err);
+      } else {
+          if (usersInRG.length > 1) {
+            var reply = _.replace(msg, keyword, user.real_name);
+            bot.reply(message, _.replace(reply, '?', ''));
+          }
+      }
+  });
 }
 
 function reunionesSemana(bot, message) {
