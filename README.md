@@ -1,6 +1,6 @@
 ### How to add your Hear.
 
-Create under src/hears a js file. You can use src/hears as example. Your module MUST
+Create under src/hears a js file. You can use src/hears/test.js as example. Your module MUST
 export 3 properties:
 
 - msg: The string to react to.
