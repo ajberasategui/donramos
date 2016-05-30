@@ -41,7 +41,7 @@ function initOwnHears() {
     addHear(['('+myName+')*'+'aprende (.*):(.*)'], config.HEAR_ENVS.MENTION_AND_DIRECT, aprende);
     addHear(['('+myName+')*'+'hola'], config.HEAR_ENVS.MENTION_AND_DIRECT, queSeYo);
     addHear(['('+myName+')*'+'me voy'], config.HEAR_ENVS.MENTION_AND_DIRECT, meVoy);
-    addHear(['('+myName+')*'+'quien va a (.*)'], config.HEAR_ENVS.MENTION_AND_DIRECT, quienCompra);
+    addHear(['('+myName+')*'+'quien va a (.*)'], config.HEAR_ENVS.MENTION_AND_DIRECT, quienAccion);
     // addhear(['('+myName+')*(.*)put[ao]'], config.HEAR_ENVS.MENTION_AND_DIRECT, function(bot, message) {
     //     bot.reply(message, "Seras vos!");
     // });
