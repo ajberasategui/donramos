@@ -50,8 +50,13 @@ function loadExternalHears() {
             logger.logSuccess(JSON.stringify(h));
             if (!_.isUndefined(h.init) && _.isFunction(h.init)) {
                 try {
+                    logger.logSuccess("Calling " + hear + " init");
                     h.init(controller, db);
-                    controller.hears(h.msg, h.env, h.responseCallback);
+                    try {
+                        controller.hears(h.msg, h.env, h.responseCallback);
+                    } catch (e) {
+                        logger.logError("Executing hears for " + hear);
+                    }
                 } catch (e) {
                     logger.logError("Executing init for " + hear);
                 }
