@@ -23,7 +23,7 @@ const hears = require('./hears');
 let db;
 let controller;
 let bot;
-const myName = "/don(.*)ramos/i"; 
+const myName = config.myName; 
 
 if (!process.env.token) {
     logger.logError('Error: Specify token in environment');
