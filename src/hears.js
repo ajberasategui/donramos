@@ -76,6 +76,7 @@ function loadExternalHears() {
 }
 
 function addHearHelp(hearName, usage, whatItDoes) {
+    logger.logSuccess("Adding help for " + hearName);
     if (!_.has(hearsHelp, hearName)) {
         hearsHelp[hearName] = {
             "usage": usage,
