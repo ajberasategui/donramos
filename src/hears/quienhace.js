@@ -7,6 +7,8 @@ module.exports = {
     init: init,
     msg: 'quien( )(va a)(.*)',
     env: config.HEAR_ENVS.MENTION_AND_DIRECT,
+    usage: '@donramos quien va a [tu accion]',
+    whatItDoes: 'Elige un presente en RG aleatoriamiente para hacer lo que indiques',
     responseCallback: responseCallback
 };
 
