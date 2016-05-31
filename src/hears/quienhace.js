@@ -14,7 +14,6 @@ let controller;
 let usersInRG;
 
 function init(theController, db) {
-    logger.logSuccess("Initiating quienHace");
     controller = theController;
     
     db.get('usersInRG')
