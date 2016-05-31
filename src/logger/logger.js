@@ -3,7 +3,8 @@ colors = require('colors');
 module.exports = {
     logError: logError,
     logSuccess: logSuccess,
-    log: log
+    log: log,
+    logPrompt: logPrompt
 };
 
 /**
@@ -31,4 +32,8 @@ function logSuccess(msg) {
  */
 function log(msg) {
     console.log(msg.white);
+}
+
+function logPrompt(msg) {
+    console.log(msg.blue);
 }
