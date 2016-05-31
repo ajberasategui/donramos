@@ -15,6 +15,7 @@ let usersInRG;
 let learntConcepts;
 let myName;
 let hearsDir;
+let hearsHelp = [];
 
 module.exports = function(theBot, theController, theConfig, theDB, botName, hearDir) {
     myName = botName;
@@ -48,6 +49,9 @@ function loadExternalHears() {
             logger.logSuccess("./hears/" + hear);
             var h = require("./hears/" + hear);
             logger.logSuccess(JSON.stringify(h));
+            if (!_.isUndefined(h.usage) && !_.isUndefined(h.whatItDoes)) {
+                addHearHelp(hear, h.usage, h.whatItDoes);
+            }
             if (!_.isUndefined(h.init) && _.isFunction(h.init)) {
                 try {
                     logger.logSuccess("Calling " + hear + " init");
@@ -68,6 +72,15 @@ function loadExternalHears() {
         });
     } else {
         logger.logError("hearsDir is not defined.");
+    }
+}
+
+function addHearHelp(hearName, usage, whatItDoes) {
+    if (!_.has(hearsHelp, hearName)) {
+        hearsHelp[hearName] = {
+            "usage": usage,
+            "whatItDoes": whatItDoes
+        };
     }
 }
 
