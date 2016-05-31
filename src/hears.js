@@ -13,7 +13,6 @@ let config;
 let db;
 let usersInRG;
 let learntConcepts;
-let allMembers;
 let myName;
 let hearsDir;
 
@@ -23,13 +22,11 @@ module.exports = function(theBot, theController, theConfig, theDB, botName, hear
     controller = theController;
     config = theConfig;
     db = theDB;
-    allMembers = [];
     hearsDir = hearDir;
     initOwnHears();
     loadExternalHears();
     return {
         setUsersInRG: setUsersInRG,
-        setAllMembers: setAllMembers,
         setLearntConcepts: setLearntConcepts,
         addHear: addHear
     };
@@ -246,10 +243,6 @@ function quienEnRG(bot, message) {
 
 function setUsersInRG(users) {
     usersInRG = users;
-}
-
-function setAllMembers(members) {
-    allMembers = members;
 }
 
 function answerAsAttachment(bot, message, title, answer) {
