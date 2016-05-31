@@ -113,8 +113,10 @@ function queSeYo(bot, message) {
             "Aprender cosas nuevas si me decis 'aprende pregunta:respuest' \n" +
             "Registrarte como presente en RG si me decis 'estoy en rg' \n" +
             "Decirte quien esta en RG ahora si me preguntas 'quien en rg' \n" +
-            "Avisarme cuando te vas de RG diciendome 'me voy'";
-
+            "Avisarme cuando te vas de RG diciendome 'me voy' \n";
+        hearsHelp.forEach(function(hearHelp) {
+            iCan += hearHelp.usage + " " + hearHelp.whatItDoes + "\n";
+        });
         var title = (user && user.profile.first_name) ? "Hola " + user.profile.first_name + ". " : "Hola. ";
         title += "Puedo: ";
         answerAsAttachment(bot, message, title, iCan);
