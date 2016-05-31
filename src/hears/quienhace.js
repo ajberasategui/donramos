@@ -1,15 +1,26 @@
 /* jshint esversion:6 */
-let config = require('../config');
+const config = require('../config');
+const _ = require('lodash');
+const logger = require('../logger/logger'); 
 
 module.exports = {
     init: init,
-    msg: '('+config.myName+')*quien( )(va a)(.*)',
+    msg: 'quien( )(va a)(.*)',
     env: config.HEAR_ENVS.MENTION_AND_DIRECT,
     responseCallback: responseCallback
 };
 
-function init(controller, db) {
+let controller;
+let usersInRG;
+
+function init(theController, db) {
+    logger.logSuccess("Initiating quienHace");
+    controller = theController;
     
+    db.get('usersInRG')
+        .then(function(users) {
+            usersInRG = users;
+        });
 }
 
 function responseCallback(bot, message) {
@@ -30,7 +41,6 @@ function responseCallback(bot, message) {
         }
     })
     .catch(function(err) {
-        if (err) {
-        }
+        logger.logError(err);
     });
 }
