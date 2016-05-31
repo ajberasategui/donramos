@@ -5,5 +5,6 @@ module.exports = {
     HEAR_ENVS: {
         'ALL': 'direct_message,direct_mention,mention,ambient',
         'MENTION_AND_DIRECT': 'direct_message,direct_mention,mention'
-    }
+    },
+    myName: "/don(.*)ramos/i"
 };
