@@ -73,7 +73,6 @@ function initOwnHears() {
     addHear(['('+myName+')*'+'aprende (.*):(.*)'], config.HEAR_ENVS.MENTION_AND_DIRECT, aprende);
     addHear(['('+myName+')*'+'hola'], config.HEAR_ENVS.MENTION_AND_DIRECT, queSeYo);
     addHear(['('+myName+')*'+'me voy'], config.HEAR_ENVS.MENTION_AND_DIRECT, meVoy);
-    addHear(['('+myName+')*'+'quien va a (.*)'], config.HEAR_ENVS.MENTION_AND_DIRECT, quienAccion);
 }
 
 /**
@@ -139,30 +138,6 @@ function aprende(bot, message) {
     } else {
         bot.reply(message, "No, asi no te entiendo. Tiene que ser _aprende pregunta:respuesta_");
     }
-}
-
-function quienAccion(bot, message) {
-  var keyword = "quien";
-  var msg = message.text;
-  var userId = _.sample(usersInRG);
-  controller.storage.users.get(userId)
-    .then(function(user) {
-        if (usersInRG.length > 1) {
-            var reply = _.replace(msg, keyword, user.real_name);
-            bot.reply(message, _.replace(reply, '?', ''));
-        }
-        else if (usersInRG.length == 1){
-            bot.reply(message, "Estas solo cabeza!!");
-        }
-        else {
-            bot.reply(message, '_naides_');
-        }
-    })
-    .catch(function(err) {
-        if (err) {
-            console.log('ERROR: ', err);
-        }
-    });
 }
 
 function reunionesSemana(bot, message) {
