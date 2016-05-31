@@ -2,7 +2,7 @@ let config = require('../config');
 
 module.exports = {
     init: init,
-    msg: '(test)*'+'(.*)',
+    msg: 'test*'+'(.*)',
     env: config.HEAR_ENVS.MENTION_AND_DIRECT,
     responseCallback: responseCallback
 };
