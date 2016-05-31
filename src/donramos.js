@@ -3,24 +3,26 @@
 
 
 // Vendor libs
-var moment = require('moment');
-var slackClient = require('./slack/slack-client');
-var lodash = require('lodash');
-var Store = require('jfs');
-var colors = require('colors');
-var Q = require('q');
-var promisify = require('promisify-node');
+const moment = require('moment');
+const slackClient = require('./slack/slack-client');
+const lodash = require('lodash');
+const Store = require('jfs');
+const colors = require('colors');
+const Q = require('q');
+const promisify = require('promisify-node');
+const readline = require('readline');
 
 // Own libs
-var gcalAuth = require('./gcal/gcal-auth');
-var gCalendar = require('./gcal/gcalendar');
-var config = require('./config');
-var logger = require('./logger/logger');
-var slackBot = require('./botkit/slack_bot');
-var hears = require('./hears');
+const gcalAuth = require('./gcal/gcal-auth');
+const gCalendar = require('./gcal/gcalendar');
+const config = require('./config');
+const logger = require('./logger/logger');
+const slackBot = require('./botkit/slack_bot');
+const hears = require('./hears');
 
-var db;
-var controller;
+let db;
+let controller;
+let bot;
 const myName = "/don(.*)ramos/i"; 
 
 if (!process.env.token) {
@@ -33,30 +35,42 @@ if (!process.env.token) {
 function init() {
     db = new Store('storage');
     
-    slackBot.init(config, process.env.token);
-    controller = slackBot.getController();
-    
-    let bot = slackBot.getBot();
-    
-    promisifyAll();
+    db.get = promisify(db.get);
     
     var load = Q.all([
         db.get("usersInRG"),
         db.get("learnt"),
-        fetchTeamMembers()
     ]);
     load.then((results) => {
         try {
             usersInRG = results[0];
             concepts = results[1];
-            allMembers = results[2];
             logger.logSuccess("Pariendo...");
-            listener = hears(bot, controller, config, db, myName, config.HEARS_DIR);
+            slackBot.init(config, process.env.token);
+            controller = slackBot.getController();
+            controller.storage.users.get = promisify(controller.storage.users.get);
             
-            listener.setAllMembers(allMembers);
-            listener.setUsersInRG(usersInRG);
-            listener.setLearntConcepts(concepts);
-            logger.logSuccess("Don Ramos ha nacido");
+            fetchTeamMembers()
+                .then(function() {
+                    bot = slackBot.getBot();
+                    listener = hears(bot, controller, config, db, myName, config.HEARS_DIR);
+                    listener.setUsersInRG(usersInRG);
+                    listener.setLearntConcepts(concepts);
+                    logger.logSuccess("Don Ramos ha nacido");
+                    const rl = readline.createInterface({
+                        input: process.stdin,
+                        output: process.stdout
+                    });
+                    rl.setPrompt("DonRamos>");
+                    rl.prompt();
+                    rl.on('line', (line) => {
+                        promptHandler(line);
+                        rl.prompt();
+                    });
+                })
+                .catch(function(err) {
+                    throw "Can't get team members: " + err;
+                });
         } catch (e) {
             logger.logError(JSON.stringify(e));
             process.exit(1);
@@ -68,9 +82,18 @@ function init() {
     });
 }
 
-function promisifyAll() {
-    db.get = promisify(db.get);
-    controller.storage.users.get = promisify(controller.storage.users.get);
+function promptHandler(option) {
+    switch (option) {
+        case 'help':
+            logger.logPrompt("Not ready to help you...");
+            break;
+        case 'exit':
+            logger.logSuccess("Bai!!!");
+            process.exit(1);
+            break;
+        default:
+            logger.logPrompt("No entendi.");
+    }
 }
 
 function fetchTeamMembers() {
