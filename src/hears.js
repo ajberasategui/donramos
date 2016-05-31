@@ -52,8 +52,10 @@ function loadExternalHears() {
                 try {
                     logger.logSuccess("Calling " + hear + " init");
                     h.init(controller, db);
+                    logger.logSuccess(hear + " initiated.");
                     try {
                         controller.hears(h.msg, h.env, h.responseCallback);
+                        logger.logSuccess(hear + " hear added.");
                     } catch (e) {
                         logger.logError("Executing hears for " + hear);
                     }
