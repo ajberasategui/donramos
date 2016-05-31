@@ -1,3 +1,4 @@
+/* jshint esversion:6 */
 var logger = require('./logger/logger');
 var gcalAuth = require('./gcal/gcal-auth');
 var gCalendar = require('./gcal/gcalendar');
@@ -34,6 +35,15 @@ module.exports = function(theBot, theController, theConfig, theDB, botName, hear
     };
 };
 
+/**
+ * Load hears declared as modules in hears/*.js
+ * Call init on every module which includes it and add a hear using
+ * the module exported properties/functions:
+ *  - msg
+ *  - env
+ *  - responseCallback
+ *  - init
+ */
 function loadExternalHears() {
     if (!_.isUndefined(hearsDir)) {
         var extHears = fs.readdirSync(hearsDir);
@@ -41,7 +51,16 @@ function loadExternalHears() {
             logger.logSuccess("./hears/" + hear);
             var h = require("./hears/" + hear);
             logger.logSuccess(JSON.stringify(h));
-            controller.hears(h.msg, h.env, h.responseCallback);
+            if (!_.isUndefined(h.init) && _.isFunction(h.init)) {
+                try {
+                    h.init(controller, db);
+                    controller.hears(h.msg, h.env, h.responseCallback);
+                } catch (e) {
+                    logger.logError("Executing init for " + hear);
+                }
+            } else {
+                controller.hears(h.msg, h.env, h.responseCallback);
+            }
         });
     } else {
         logger.logError("hearsDir is not defined.");
