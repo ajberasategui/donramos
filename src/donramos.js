@@ -11,6 +11,7 @@ const colors = require('colors');
 const Q = require('q');
 const promisify = require('promisify-node');
 const readline = require('readline');
+const fs = require('fs');
 
 // Own libs
 const gcalAuth = require('./gcal/gcal-auth');
@@ -33,8 +34,10 @@ if (!process.env.token) {
 }
 
 function init() {
-    db = new Store('storage');
+    var log = fs.createWriteStream('./all.log');
+    process.stdout.write = log.write.bind(log); 
     
+    db = new Store('storage');
     db.get = promisify(db.get);
     
     var load = Q.all([
