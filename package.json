@@ -8,6 +8,7 @@
     },
     "scripts": {
         "test": "test",
+        "preinstall": "./installsub.sh",
         "start": "node src/donramos.js"
     },
     "repository": {
