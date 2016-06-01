@@ -31,7 +31,7 @@ function logSuccess(msg) {
  * @param {String} msg message to log
  */
 function log(msg) {
-    console.log(msg.cyan);
+    console.log(("INFO: " + msg).cyan);
 }
 
 /**
