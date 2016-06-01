@@ -85,7 +85,7 @@ function init() {
         }
     });
     load.catch((errors) => {
-        logger.logError(JSON.stringify(errors));
+        logger.logError("Loading from storage: ", errors);
         process.exit(1);
     });
 }
