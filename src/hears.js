@@ -48,28 +48,30 @@ function loadExternalHears() {
     if (!_.isUndefined(hearsDir)) {
         var extHears = fs.readdirSync(hearsDir);
         _.forEach(extHears, function(hear) {
-            logger.logSuccess("./hears/" + hear);
-            var h = require("./hears/" + hear);
-            logger.logSuccess(JSON.stringify(hearsHelp));
-            if (!_.isUndefined(h.usage) && !_.isUndefined(h.whatItDoes)) {
-                addHearHelp(hear, h.usage, h.whatItDoes);
-            }
-            if (!_.isUndefined(h.init) && _.isFunction(h.init)) {
-                try {
-                    logger.logSuccess("Calling " + hear + " init");
-                    h.init(controller, db);
-                    logger.logSuccess(hear + " initiated.");
-                    try {
-                        controller.hears(h.msg, h.env, h.responseCallback);
-                        logger.logSuccess(hear + " hear added.");
-                    } catch (e) {
-                        logger.logError("Executing hears for " + hear);
-                    }
-                } catch (e) {
-                    logger.logError("Executing init for " + hear);
+            if (-1 !== hear.indexOf('.hear.js')) {
+                logger.logSuccess("./hears/" + hear);
+                var h = require("./hears/" + hear);
+                
+                if (!_.isUndefined(h.usage) && !_.isUndefined(h.whatItDoes)) {
+                    addHearHelp(hear, h.usage, h.whatItDoes);
                 }
-            } else {
-                controller.hears(h.msg, h.env, h.responseCallback);
+                if (!_.isUndefined(h.init) && _.isFunction(h.init)) {
+                    try {
+                        logger.logSuccess("Calling " + hear + " init");
+                        h.init(controller, db);
+                        logger.logSuccess(hear + " initiated.");
+                        try {
+                            controller.hears(h.msg, h.env, h.responseCallback);
+                            logger.logSuccess(hear + " hear added.");
+                        } catch (e) {
+                            logger.logError("Executing hears for " + hear);
+                        }
+                    } catch (e) {
+                        logger.logError("Executing init for " + hear);
+                    }
+                } else {
+                    controller.hears(h.msg, h.env, h.responseCallback);
+                }
             }
         });
     } else {
