@@ -26,14 +26,19 @@ function logSuccess(msg) {
 }
 
 /**
- * Log a message using white color
+ * Log a message using cyan color
  * 
  * @param {String} msg message to log
  */
 function log(msg) {
-    console.log(msg.white);
+    console.log(msg.cyan);
 }
 
+/**
+ * Logs prompt messages
+ * 
+ * @msg {String} the message to log.
+ */
 function logPrompt(msg) {
     console.log(msg.blue);
 }
