@@ -35,9 +35,9 @@ if (!process.env.token) {
 
 function init() {
     var log = fs.createWriteStream('./all.log');
-    process.stdout.write = log.write.bind(log);
+    // process.stdout.write = log.write.bind(log);
     var errorLog = fs.createWriteStream('./error.log');
-    process.stderr.write = errorLog.write.bind(errorLog);
+    // process.stderr.write = errorLog.write.bind(errorLog);
     
     db = new Store('storage');
     db.get = promisify(db.get);
