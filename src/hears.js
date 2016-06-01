@@ -15,7 +15,7 @@ let usersInRG;
 let learntConcepts;
 let myName;
 let hearsDir;
-let hearsHelp = [];
+let hearsHelp = {};
 
 module.exports = function(theBot, theController, theConfig, theDB, botName, hearDir) {
     myName = botName;
@@ -24,8 +24,10 @@ module.exports = function(theBot, theController, theConfig, theDB, botName, hear
     config = theConfig;
     db = theDB;
     hearsDir = hearDir;
-    initOwnHears();
+    
     loadExternalHears();
+    initOwnHears();
+    
     return {
         setUsersInRG: setUsersInRG,
         setLearntConcepts: setLearntConcepts,
@@ -48,7 +50,7 @@ function loadExternalHears() {
         _.forEach(extHears, function(hear) {
             logger.logSuccess("./hears/" + hear);
             var h = require("./hears/" + hear);
-            logger.logSuccess(JSON.stringify(h));
+            logger.logSuccess(JSON.stringify(hearsHelp));
             if (!_.isUndefined(h.usage) && !_.isUndefined(h.whatItDoes)) {
                 addHearHelp(hear, h.usage, h.whatItDoes);
             }
@@ -76,12 +78,14 @@ function loadExternalHears() {
 }
 
 function addHearHelp(hearName, usage, whatItDoes) {
-    logger.logSuccess("Adding help for " + hearName);
     if (!_.has(hearsHelp, hearName)) {
-        hearsHelp[hearName] = {
+        var name = _.replace(hearName, '.js', '');
+        var help = {
             "usage": usage,
             "whatItDoes": whatItDoes
         };
+        hearsHelp[name] = help;
+        logger.logSuccess("Help for " + name + " added.");
     }
 }
 
@@ -115,8 +119,10 @@ function queSeYo(bot, message) {
             "Registrarte como presente en RG si me decis 'estoy en rg' \n" +
             "Decirte quien esta en RG ahora si me preguntas 'quien en rg' \n" +
             "Avisarme cuando te vas de RG diciendome 'me voy' \n";
-        hearsHelp.forEach(function(hearHelp) {
+        logger.logSuccess(JSON.stringify(hearsHelp));
+        _.forEach(hearsHelp, function(hearHelp) {
             iCan += hearHelp.usage + " " + hearHelp.whatItDoes + "\n";
+            logger.logSuccess(iCan);
         });
         var title = (user && user.profile.first_name) ? "Hola " + user.profile.first_name + ". " : "Hola. ";
         title += "Puedo: ";

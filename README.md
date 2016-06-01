@@ -2,15 +2,22 @@
 
 Create under src/hears a js file. You can use src/hears/test.js as example. 
 
-##### Your module MUST export 2 properties and 1 function and MAY export the extra function (init):
+##### Your module MUST export 2 properties and 1 function.
 
 - msg: The string to react to.
 - env: Envs to hear on. See https://github.com/howdyai/botkit/blob/master/readme-slack.md#message-received-events for environments/events.
 - responseCallback: The function to execute when msg is received. It MUST accept the params bot and message and send its reply as 
 ``` bot.reply(message, <yourReplyHere>). ```
+
+###### It MAY also export the following properties:
+
 - init: (optional) This function will be called with controlle (botkit bot controller for donramos) and db 
 (jfs module storage object). This function is called before registering the hear, so you may you use to interact
 with the controller and the data storage to retrieve data needed for your hear callback.
+- usage: Explains how to use your hear.
+- whatItDoes: Explains what your hear does.
+
+
 
 ##### Example
 
@@ -21,6 +28,8 @@ module.exports = {
     init: init,
     msg: '(test)*'+'(.*)',
     env: config.HEAR_ENVS.MENTION_AND_DIRECT,
+    usage: '@donramos quien va a [tu accion]',
+    whatItDoes: 'Elige un presente en RG aleatoriamiente para hacer lo que indiques',
     responseCallback: responseCallback
 };
 
