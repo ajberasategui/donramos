@@ -12,5 +12,9 @@ module.exports = {
 };
 
 function responseCallback(bot, message) {
-    bot.reply(message, "En lo de " + process.env.USER);
+    var response = (!_.isUndefined(process.env.USER)) ?
+        "En lo de " + process.env.USER :
+        "Creo que en lo de Heroku";
+    bot.reply(message, response);
+    
 }
