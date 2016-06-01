@@ -49,6 +49,7 @@ function init() {
             slackBot.init(config, process.env.token);
             controller = slackBot.getController();
             controller.storage.users.get = promisify(controller.storage.users.get);
+            controller.storage.users.all = promisify(controller.storage.users.all);
             
             fetchTeamMembers()
                 .then(function() {
@@ -97,18 +98,24 @@ function promptHandler(option) {
 }
 
 function fetchTeamMembers() {
-    var promise = slackClient.getUsers();
-    promise.then(function(response) {
-        if (err) {
-            logger.logError(err);
-        } else {
-            var users = response.members;
-            for (var i = 0; i < users.length; i++) {
-                var user =  users[i];
-                controller.storage.users.save(user);
+    logger.log("Fetching team members from slack");
+    var p = new Promise(function(resolve, reject) {
+        slackClient.getUsers(function(err, response) {
+            if (err) {
+                logger.logError("Loading team members: " + err);
+                reject(err);
+                process.exit(1);
+            } else {
+                logger.log("Got members");
+                var users = response.members;
+                for (var i = 0; i < users.length; i++) {
+                    var user =  users[i];
+                    controller.storage.users.save(user);
+                }
+                resolve();
             }
-        }    
+        });
     });
-    return promise;
+    return p;
 }
 // TODO Use Q
