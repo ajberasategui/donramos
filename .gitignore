@@ -5,6 +5,7 @@ src/examples/db_slackbutton_incomingwebhook/
 src/examples/db_slackbutton_slashcommand/
 src/examples/db_team_bot/
 db/
+storage/
 .DS_Store
 */.DS_Store
 .env
