@@ -35,9 +35,9 @@ if (!process.env.token) {
 
 function init() {
     var log = fs.createWriteStream('./all.log');
-    // process.stdout.write = log.write.bind(log);
+    process.stdout.write = log.write.bind(log);
     var errorLog = fs.createWriteStream('./error.log');
-    // process.stderr.write = errorLog.write.bind(errorLog);
+    process.stderr.write = errorLog.write.bind(errorLog);
     
     db = new Store('storage');
     db.get = promisify(db.get);
@@ -48,10 +48,11 @@ function init() {
     ]);
     load.then((results) => {
         try {
-            logger.log("Loaded: " + JSON.stringify(results));
-            usersInRG = results[0];
-            concepts = results[1];
             logger.logSuccess("Pariendo...");
+            
+            usersInRG = (results && results[0]) ? results[0] : [];
+            concepts = (results && results[1]) ? results[1] : [];
+            
             slackBot.init(config, process.env.token);
             controller = slackBot.getController();
             controller.storage.users.get = promisify(controller.storage.users.get);
