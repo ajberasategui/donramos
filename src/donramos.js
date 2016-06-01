@@ -48,6 +48,7 @@ function init() {
     ]);
     load.then((results) => {
         try {
+            logger.log("Loaded: " + JSON.stringify(results));
             usersInRG = results[0];
             concepts = results[1];
             logger.logSuccess("Pariendo...");
