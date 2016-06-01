@@ -51,9 +51,11 @@ function loadExternalHears() {
             if (-1 !== hear.indexOf('.hear.js')) {
                 logger.logSuccess("./hears/" + hear);
                 var h = require("./hears/" + hear);
-                
-                if (!_.isUndefined(h.usage) && !_.isUndefined(h.whatItDoes)) {
-                    addHearHelp(hear, h.usage, h.whatItDoes);
+                try { 
+                    var test = new RegExp(h.msg);
+                } catch (e) {
+                    logger.logError("Not loading " + hear + " because its regex fails.");
+                    return;
                 }
                 if (!_.isUndefined(h.init) && _.isFunction(h.init)) {
                     try {
@@ -62,6 +64,9 @@ function loadExternalHears() {
                         logger.logSuccess(hear + " initiated.");
                         try {
                             controller.hears(h.msg, h.env, h.responseCallback);
+                            if (!_.isUndefined(h.usage) && !_.isUndefined(h.whatItDoes)) {
+                                addHearHelp(hear, h.usage, h.whatItDoes);
+                            }
                             logger.logSuccess(hear + " hear added.");
                         } catch (e) {
                             logger.logError("Executing hears for " + hear);
