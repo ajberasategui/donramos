@@ -1,4 +1,4 @@
-/// <reference path="logger/logger.js"/>
+/// <reference path="../typings/tsd.d.ts"/>
 /* jshint esversion:6 */
 
 
@@ -6,7 +6,6 @@
 const moment = require('moment');
 const slackClient = require('./slack/slack-client');
 const lodash = require('lodash');
-const Store = require('jfs');
 const colors = require('colors');
 const Q = require('q');
 const promisify = require('promisify-node');
@@ -19,12 +18,12 @@ const gCalendar = require('./gcal/gcalendar');
 const config = require('./config');
 const logger = require('./logger/logger');
 const slackBot = require('./botkit/slack_bot');
-const hears = require('./hears');
+const hears = require('./core/hears');
+const drMemory = require('./core/dr-main-memory');
 
-let db;
 let controller;
 let bot;
-const myName = config.myName; 
+const myName = config.myName;
 
 if (!process.env.token) {
     logger.logError('Error: Specify token in environment');
@@ -39,17 +38,13 @@ function init() {
     var errorLog = fs.createWriteStream('./error.log');
     process.stderr.write = errorLog.write.bind(errorLog);
     
-    db = new Store('storage');
-    db.get = promisify(db.get);
-    
-    var load = Q.all([
-        db.get("usersInRG"),
-        db.get("learnt"),
+    let load = Q.all([
+        drMemory.recall("usersInRG"),
+        drMemory.recall("learnt")
     ]);
+
     load.then((results) => {
         try {
-            logger.logSuccess("Pariendo...");
-            
             usersInRG = (results && results[0]) ? results[0] : [];
             concepts = (results && results[1]) ? results[1] : [];
             
@@ -57,30 +52,39 @@ function init() {
             controller = slackBot.getController();
             controller.storage.users.get = promisify(controller.storage.users.get);
             controller.storage.users.all = promisify(controller.storage.users.all);
-            
+
             fetchTeamMembers()
-                .then(function() {
-                    bot = slackBot.getBot();
-                    listener = hears(bot, controller, config, db, myName, config.HEARS_DIR);
-                    listener.setUsersInRG(usersInRG);
-                    listener.setLearntConcepts(concepts);
-                    logger.logSuccess("Don Ramos ha nacido");
-                    const rl = readline.createInterface({
-                        input: process.stdin,
-                        output: process.stdout
-                    });
-                    rl.setPrompt("DonRamos>");
-                    rl.prompt();
-                    rl.on('line', (line) => {
-                        promptHandler(line);
+                .then(function(members) {
+                    try {
+                        bot = slackBot.getBot();
+
+                        listener = hears(bot, controller, config, drMemory, myName, config.HEARS_DIR);
+
+                        listener.setUsersInRG(usersInRG);
+                        listener.setLearntConcepts(concepts);
+                        logger.logSuccess("Don Ramos ha nacido");
+                        const rl = readline.createInterface({
+                            input: process.stdin,
+                            output: process.stdout
+                        });
+                        rl.setPrompt("DonRamos>");
                         rl.prompt();
-                    });
+                        rl.on('line', (line) => {
+                            promptHandler(line);
+                            rl.prompt();
+                        });
+                    } catch(err) {
+                        logger.logError("Unexpected: " + err);
+                        process.exit(1);
+                    }
                 })
                 .catch(function(err) {
-                    throw "Can't get team members: " + err;
+                    logger.logError("On team members load: " + err);
+                    process.exit(1);
+                    
                 });
-        } catch (e) {
-            logger.logError(JSON.stringify(e));
+        } catch (err) {
+            logger.logError("On Main Init: " + JSON.stringify(e));
             process.exit(1);
         }
     });
@@ -119,7 +123,7 @@ function fetchTeamMembers() {
                     var user =  users[i];
                     controller.storage.users.save(user);
                 }
-                resolve();
+                resolve(users);
             }
         });
     });
