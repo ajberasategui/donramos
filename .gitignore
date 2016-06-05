@@ -10,3 +10,4 @@ db/
 .env
 all.log
 error.log
+typings/*
