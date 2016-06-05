@@ -13,35 +13,34 @@ module.exports = {
 };
 
 let controller;
-let usersInRG;
+let drMemory;
 
-function init(theController, db) {
+function init(theController, memory) {
     controller = theController;
-    
-    db.get('usersInRG')
-        .then(function(users) {
-            usersInRG = users;
-        });
+    drMemory = memory;
 }
 
 function responseCallback(bot, message) {
   var keyword = "quien";
   var msg = message.text;
-  var userId = _.sample(usersInRG);
-  controller.storage.users.get(userId)
-    .then(function(user) {
-        if (usersInRG.length > 1) {
-            var reply = _.replace(msg, keyword, user.real_name);
-            bot.reply(message, _.replace(reply, '?', ''));
-        }
-        else if (usersInRG.length == 1){
-            bot.reply(message, "Estas solo cabeza!!");
-        }
-        else {
-            bot.reply(message, '_naides_');
-        }
-    })
-    .catch(function(err) {
-        logger.logError(err);
+  drMemory.recall("usersInRG")
+    .then((usersInRG) => {
+        var userId = _.sample(usersInRG);
+        controller.storage.users.get(userId)
+            .then(function(user) {
+                if (usersInRG.length > 1) {
+                    var reply = _.replace(msg, keyword, user.real_name);
+                    bot.reply(message, _.replace(reply, '?', ''));
+                }
+                else if (usersInRG.length == 1){
+                    bot.reply(message, "Estas solo cabeza!!");
+                }
+                else {
+                    bot.reply(message, '_naides_');
+                }
+            })
+            .catch(function(err) {
+                logger.logError(err);
+            });
     });
 }
